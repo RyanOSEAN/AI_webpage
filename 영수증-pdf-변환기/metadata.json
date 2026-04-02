@@ -1,0 +1,5 @@
+{
+  "name": "영수증 PDF 변환기",
+  "description": "영수증을 업로드하고 AI로 정보를 추출하여 법인카드 정산용 PDF를 생성합니다.",
+  "requestFramePermissions": []
+}
