@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 22
+names: ['Bait container', 'Colored plastic bottle', 'Eel corn', 'Eel trap', 'Glass', 'Metal', 'Net', 'PET_Bottle', 'Plastic_Buoy', 'Plastic_Buoy_China', 'Plastic_Disposable_Food_container', 'Plastic_ETC', 'Plastic_Oil_Bottle', 'Plastic_aquaculture_chemical_container', 'Plastic_aquaculture_laver_pole', 'Plastic_disposable_cup', 'Rope', 'Spring trap', 'Styrofoam_Box', 'Styrofoam_Buoy', 'Styrofoam_Piece', 'Takeout cup']
+
+roboflow:
+  workspace: oseanphoto
+  project: aihub-espnc
+  version: 1
+  license: Private
+  url: https://app.roboflow.com/oseanphoto/aihub-espnc/1

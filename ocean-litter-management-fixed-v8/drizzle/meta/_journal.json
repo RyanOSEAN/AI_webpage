@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1762334296032,
+      "tag": "0000_familiar_payback",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1762334384068,
+      "tag": "0001_black_moonstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1762336769042,
+      "tag": "0002_swift_shadow_king",
+      "breakpoints": true
+    }
+  ]
+}

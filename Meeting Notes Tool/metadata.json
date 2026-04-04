@@ -1,0 +1,5 @@
+{
+  "name": "회의록 작성 도구",
+  "description": "A tool to create and manage meeting minutes, styled after a provided document format. Allows users to fill in details for meeting records, attendee lists, and expenses.",
+  "requestFramePermissions": []
+}
