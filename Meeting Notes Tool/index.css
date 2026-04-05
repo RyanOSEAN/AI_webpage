@@ -1,1 +1,57 @@
 @import "tailwindcss";
+
+/* Fix for html2canvas oklch error in Tailwind v4 */
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+}
+
+/* Override all Tailwind v4 oklch variables */
+* {
+  --tw-ring-color: transparent !important;
+  --tw-ring-offset-color: transparent !important;
+  --tw-ring-shadow: none !important;
+  --tw-shadow: none !important;
+  --tw-shadow-colored: none !important;
+}
+
+.page-container, .page-container * {
+  /* Force standard colors for PDF generation */
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+.bg-gray-100 {
+  background-color: #f3f4f6 !important;
+}
+
+.bg-white {
+  background-color: #ffffff !important;
+}
+
+.text-black {
+  color: #000000 !important;
+}
+
+.border-black {
+  border-color: #000000 !important;
+}
+
+.text-blue-600 {
+  color: #2563eb !important;
+}
+
+.bg-blue-600 {
+  background-color: #2563eb !important;
+}
+
+.hover\:bg-blue-700:hover {
+  background-color: #1d4ed8 !important;
+}

@@ -368,6 +368,22 @@ const App: React.FC = () => {
               allowTaint: true,
               backgroundColor: '#ffffff',
               onclone: (documentClone: Document) => {
+                  // CRITICAL: Remove all oklch variables from the cloned document to prevent html2canvas error
+                  const style = documentClone.createElement('style');
+                  style.textContent = `
+                    * {
+                      --background: #ffffff !important;
+                      --foreground: #000000 !important;
+                      --tw-ring-color: transparent !important;
+                      --tw-ring-offset-color: transparent !important;
+                      --tw-ring-shadow: none !important;
+                      --tw-shadow: none !important;
+                      --tw-shadow-colored: none !important;
+                      color-scheme: light !important;
+                    }
+                  `;
+                  documentClone.head.appendChild(style);
+
                   // Hide elements marked as print:hidden
                   documentClone.querySelectorAll('.print\\:hidden').forEach(el => {
                       (el as HTMLElement).style.display = 'none';
