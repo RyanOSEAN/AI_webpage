@@ -59,7 +59,7 @@ const extractAmountFromReceipt = async (base64Image: string, mimeType: string): 
 
 
 const projectData = [
-    { supportProject: "풀이사업", sponsoringOrganization: "(사)동아시아바다공동체 오션", researcherInCharge: "홍선욱" },
+    { supportProject: "플이사업", sponsoringOrganization: "(사)동아시아바다공동체 오션", researcherInCharge: "홍선욱" },
     { supportProject: "바다기사단", sponsoringOrganization: "(사)동아시아바다공동체 오션", researcherInCharge: "홍선욱" },
     { supportProject: "GS리테일 해양생태계 보호 프로젝트", sponsoringOrganization: "GS리테일", researcherInCharge: "홍선욱" },
     { supportProject: "2026 GS리테일 바다숨 프로젝트", sponsoringOrganization: "GS리테일", researcherInCharge: "홍선욱" },
@@ -634,7 +634,7 @@ const App: React.FC = () => {
                       <button
                           onClick={() => receiptInputRef.current?.click()}
                           disabled={isProcessingReceipt}
-                          className="ml-4 px-3 py-1 bg-blue-500 text-white text-xs rounded-md flex items-center justify-center hover:bg-gray-800 disabled:bg-gray-400 print:hidden"
+                          className="ml-4 px-4 py-1.5 bg-blue-600 text-white text-sm font-semibold rounded-md flex items-center justify-center hover:bg-blue-700 disabled:bg-gray-400 print:hidden transition-colors"
                       >
                           {isProcessingReceipt ? <SpinnerIcon/> : '영수증 업로드'}
                       </button>
@@ -697,7 +697,7 @@ const App: React.FC = () => {
                             {!attendee.signature ? (
                                 <button 
                                 onClick={() => document.getElementById(`sig-upload-${attendee.id}`)?.click()} 
-                                className="text-xs px-2 py-1 bg-gray-200 rounded print:hidden"
+                                className="text-xs px-2 py-1 bg-blue-600 text-white rounded print:hidden hover:bg-blue-700 transition-colors"
                                 >
                                 서명 업로드
                                 </button>
@@ -707,7 +707,7 @@ const App: React.FC = () => {
                                 <div className="absolute top-1 right-1 flex print:hidden">
                                     <button 
                                         onClick={() => document.getElementById(`sig-upload-${attendee.id}`)?.click()} 
-                                        className="text-xs px-2 py-1 bg-gray-200 hover:bg-blue-400 rounded-l-md"
+                                        className="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-l-md"
                                         title="다시 선택하기"
                                     >
                                         다시 선택
@@ -731,8 +731,8 @@ const App: React.FC = () => {
             {allPersonnel.map(p => <option key={p.name} value={p.name} />)}
           </datalist>
           <div className="text-center mt-4 space-x-4 print:hidden">
-              <button onClick={addAttendee} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm font-semibold text-black">참석자 추가</button>
-              <button onClick={removeLastAttendee} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm font-semibold text-black">참석자 삭제</button>
+              <button onClick={addAttendee} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-sm font-semibold text-white transition-colors">참석자 추가</button>
+              <button onClick={removeLastAttendee} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm font-semibold text-black transition-colors">참석자 삭제</button>
           </div>
           <div className="text-center mt-12">
               <h3 className="text-3xl text-black">(사)동아시아바다공동체 오션</h3>
@@ -748,8 +748,8 @@ const App: React.FC = () => {
               {receiptImage ? (
                   <div className="w-full">
                       <div className="text-right mb-2">
-                          <button onClick={handleClearReceipt} className="text-red-500 hover:underline print:hidden">
-                              삭제
+                          <button onClick={handleClearReceipt} className="px-3 py-1 bg-red-100 text-red-600 hover:bg-red-200 rounded text-sm font-medium print:hidden transition-colors">
+                              영수증 삭제
                           </button>
                       </div>
                       <div className="border p-2 rounded-md w-full flex justify-center">
@@ -757,7 +757,7 @@ const App: React.FC = () => {
                       </div>
                   </div>
               ) : (
-                  <div className="text-gray-500 print:hidden">
+                  <div className="text-gray-600 font-medium print:hidden">
                       영수증을 업로드해주세요.
                   </div>
               )}

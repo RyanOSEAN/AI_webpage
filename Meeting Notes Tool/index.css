@@ -23,9 +23,17 @@
 }
 
 .page-container, .page-container * {
-  /* Force standard colors for PDF generation */
-  color: #000000 !important;
-  border-color: #000000 !important;
+  /* Force standard colors for PDF generation by default */
+  color: #000000;
+  border-color: #000000;
+}
+
+.text-white {
+  color: #ffffff !important;
+}
+
+.bg-black {
+  background-color: #000000 !important;
 }
 
 .bg-gray-100 {
@@ -52,6 +60,26 @@
   background-color: #2563eb !important;
 }
 
-.hover\:bg-blue-700:hover {
-  background-color: #1d4ed8 !important;
+.text-gray-600 {
+  color: #4b5563 !important;
+}
+
+.bg-red-100 {
+  background-color: #fee2e2 !important;
+}
+
+.bg-red-200 {
+  background-color: #fecaca !important;
+}
+
+.bg-gray-200 {
+  background-color: #e5e7eb !important;
+}
+
+.text-red-800 {
+  color: #991b1b !important;
+}
+
+.bg-red-300 {
+  background-color: #fca5a5 !important;
 }
