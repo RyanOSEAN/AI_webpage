@@ -342,21 +342,33 @@ const App: React.FC = () => {
   const handleDownloadPdf = async () => {
     setIsGeneratingPdf(true);
     try {
-      // Wait a bit for fonts to load properly
-      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log("Starting PDF generation...");
+      
+      // 1. Wait for all images to decode
+      const images = Array.from(document.querySelectorAll('img'));
+      await Promise.all(images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return img.decode().catch(e => console.warn("Image decode failed", e));
+      }));
 
+      // 2. Initialize PDF
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageElements = document.querySelectorAll('.page-container');
       const A4_WIDTH = 210;
       const A4_HEIGHT = 297;
 
       for (let i = 0; i < pageElements.length; i++) {
+          console.log(`Capturing page ${i + 1}...`);
           const page = pageElements[i] as HTMLElement;
+          
           const canvas = await html2canvas(page, {
               scale: 1.5,
               useCORS: true,
-              logging: true,
+              logging: false, // Turn off for production
+              allowTaint: true,
+              backgroundColor: '#ffffff',
               onclone: (documentClone: Document) => {
+                  // Hide elements marked as print:hidden
                   documentClone.querySelectorAll('.print\\:hidden').forEach(el => {
                       (el as HTMLElement).style.display = 'none';
                   });
@@ -366,6 +378,7 @@ const App: React.FC = () => {
                       (el as HTMLElement).style.display = 'none';
                   });
 
+                  // Handle date/time fields
                   const dateContainer = documentClone.querySelector('.date-time-field-container');
                   if (dateContainer) {
                       const inputs = Array.from(dateContainer.querySelectorAll<HTMLInputElement>('input'));
@@ -386,17 +399,20 @@ const App: React.FC = () => {
                       (th as HTMLElement).style.paddingBottom = "0.8rem";
                   });
 
-                  // Reduce receipt image size in PDF
+                  // Adjust receipt image size in PDF
                   const receiptImg = documentClone.querySelector('#page-3 img[alt="receipt"]') as HTMLImageElement;
                   if (receiptImg) {
                       receiptImg.style.width = '300px';
                       receiptImg.style.height = 'auto';
                       receiptImg.style.maxWidth = '100%';
+                      receiptImg.style.display = 'block';
+                      receiptImg.style.margin = '0 auto';
                   }
 
+                  // Replace inputs/textareas with divs for better rendering
                   documentClone.querySelectorAll('input, textarea').forEach(el => {
                       const element = el as HTMLInputElement | HTMLTextAreaElement;
-                      if (element.type === 'file') return;
+                      if (element.type === 'file' || element.type === 'hidden') return;
                       
                       const div = documentClone.createElement('div');
                       div.style.whiteSpace = 'pre-wrap';
@@ -415,6 +431,8 @@ const App: React.FC = () => {
                           align-items: center;
                           padding: ${style.padding};
                           box-sizing: border-box;
+                          background-color: transparent;
+                          border: none;
                       `;
                       if (style.textAlign === 'center') {
                           div.style.justifyContent = 'center';
@@ -440,9 +458,10 @@ const App: React.FC = () => {
       const dateStr = `${minutes.date.year.slice(-2)}${minutes.date.month.padStart(2, '0')}${minutes.date.day.padStart(2, '0')}`;
       const fileName = `${minutes.sponsoringOrganization || '지원기관'}_회의비_${minutes.agenda || '안건'}_(${dateStr})_회의록.pdf`;
       pdf.save(fileName);
+      console.log("PDF saved successfully!");
     } catch (error) {
-      console.error("PDF generation failed:", error);
-      alert("PDF 생성 중 오류가 발생했습니다. 브라우저 콘솔을 확인해 주세요.");
+      console.error("PDF generation failed at stage:", error);
+      alert(`PDF 생성 중 오류가 발생했습니다.\n상세내용: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsGeneratingPdf(false);
     }
