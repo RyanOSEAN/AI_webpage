@@ -2,6 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Attendee, MeetingMinutesData } from './types';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // Gemini AI instance
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.API_KEY || '';
@@ -339,103 +341,106 @@ const App: React.FC = () => {
   
   const handleDownloadPdf = async () => {
     setIsGeneratingPdf(true);
-    // @ts-ignore
-    const { jsPDF } = window.jspdf;
-    // @ts-ignore
-    const html2canvas = window.html2canvas;
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageElements = document.querySelectorAll('.page-container');
+      const A4_WIDTH = 210;
+      const A4_HEIGHT = 297;
 
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageElements = document.querySelectorAll('.page-container');
-    const A4_WIDTH = 210;
-    const A4_HEIGHT = 297;
+      for (let i = 0; i < pageElements.length; i++) {
+          const page = pageElements[i] as HTMLElement;
+          const canvas = await html2canvas(page, {
+              scale: 2,
+              useCORS: true,
+              onclone: (documentClone: Document) => {
+                  documentClone.querySelectorAll('.print\\:hidden').forEach(el => {
+                      (el as HTMLElement).style.display = 'none';
+                  });
+                  
+                  // Explicitly hide all file inputs to prevent file path text from appearing over images
+                  documentClone.querySelectorAll('input[type="file"]').forEach(el => {
+                      (el as HTMLElement).style.display = 'none';
+                  });
 
-    for (let i = 0; i < pageElements.length; i++) {
-        const page = pageElements[i] as HTMLElement;
-        const canvas = await html2canvas(page, {
-            scale: 2,
-            useCORS: true,
-            onclone: (documentClone: Document) => {
-                documentClone.querySelectorAll('.print\\:hidden').forEach(el => {
-                    (el as HTMLElement).style.display = 'none';
-                });
-                
-                // Explicitly hide all file inputs to prevent file path text from appearing over images
-                documentClone.querySelectorAll('input[type="file"]').forEach(el => {
-                    (el as HTMLElement).style.display = 'none';
-                });
+                  const dateContainer = documentClone.querySelector('.date-time-field-container');
+                  if (dateContainer) {
+                      const inputs = Array.from(dateContainer.querySelectorAll<HTMLInputElement>('input'));
+                      if (inputs.length === 7) {
+                          const dateString = `${inputs[0].value}년 ${inputs[1].value}월 ${inputs[2].value}일 ${inputs[3].value}:${inputs[4].value} ~ ${inputs[5].value}:${inputs[6].value}`;
+                          const textDiv = documentClone.createElement('div');
+                          textDiv.textContent = dateString;
+                          textDiv.style.textAlign = 'center';
+                          textDiv.style.width = '100%';
+                          textDiv.style.fontSize = '14px';
+                          dateContainer.innerHTML = '';
+                          dateContainer.appendChild(textDiv);
+                      }
+                  }
 
-                const dateContainer = documentClone.querySelector('.date-time-field-container');
-                if (dateContainer) {
-                    const inputs = Array.from(dateContainer.querySelectorAll<HTMLInputElement>('input'));
-                    if (inputs.length === 7) {
-                        const dateString = `${inputs[0].value}년 ${inputs[1].value}월 ${inputs[2].value}일 ${inputs[3].value}:${inputs[4].value} ~ ${inputs[5].value}:${inputs[6].value}`;
-                        const textDiv = documentClone.createElement('div');
-                        textDiv.textContent = dateString;
-                        textDiv.style.textAlign = 'center';
-                        textDiv.style.width = '100%';
-                        textDiv.style.fontSize = '14px';
-                        dateContainer.innerHTML = '';
-                        dateContainer.appendChild(textDiv);
-                    }
-                }
+                  // Adjust table headers for better vertical alignment
+                  documentClone.querySelectorAll('th').forEach(th => {
+                      (th as HTMLElement).style.paddingBottom = "0.8rem"; // Nudge text up
+                  });
 
-                // Adjust table headers for better vertical alignment
-                documentClone.querySelectorAll('th').forEach(th => {
-                    (th as HTMLElement).style.paddingBottom = "0.8rem"; // Nudge text up
-                });
+                  // Reduce receipt image size in PDF
+                  const receiptImg = documentClone.querySelector('#page-3 img[alt="receipt"]') as HTMLImageElement;
+                  if (receiptImg) {
+                      receiptImg.style.width = '300px'; // Set a fixed width for the receipt in PDF
+                      receiptImg.style.height = 'auto';
+                      receiptImg.style.maxWidth = '100%';
+                  }
 
-                // Reduce receipt image size
-                const receiptImg = documentClone.querySelector('#page-3 img[alt="receipt"]') as HTMLImageElement;
-                if (receiptImg) {
-                    receiptImg.style.width = '50%';
-                }
+                  documentClone.querySelectorAll('input, textarea').forEach(el => {
+                      const element = el as HTMLInputElement | HTMLTextAreaElement;
+                      // Skip if it's a file input (already handled above but double check) or radio/checkbox if we had them
+                      if (element.type === 'file') return;
+                      
+                      const div = documentClone.createElement('div');
+                      div.style.whiteSpace = 'pre-wrap';
+                      div.style.wordBreak = 'break-word';
+                      div.textContent = element.value;
 
-                documentClone.querySelectorAll('input, textarea').forEach(el => {
-                    const element = el as HTMLInputElement | HTMLTextAreaElement;
-                    // Skip if it's a file input (already handled above but double check) or radio/checkbox if we had them
-                    if (element.type === 'file') return;
-                    
-                    const div = documentClone.createElement('div');
-                    div.style.whiteSpace = 'pre-wrap';
-                    div.style.wordBreak = 'break-word';
-                    div.textContent = element.value;
+                      const style = window.getComputedStyle(element);
+                      div.style.cssText += `
+                          font-family: ${style.fontFamily};
+                          font-size: ${style.fontSize};
+                          text-align: ${style.textAlign};
+                          color: ${style.color};
+                          width: ${style.width};
+                          min-height: ${style.height};
+                          display: flex;
+                          align-items: center;
+                          padding: ${style.padding};
+                          box-sizing: border-box;
+                      `;
+                      if (style.textAlign === 'center') {
+                          div.style.justifyContent = 'center';
+                      }
+                      // Add extra bottom padding to nudge text up
+                      div.style.paddingBottom = `calc(${style.paddingBottom} + 4px)`;
+                      element.parentNode?.replaceChild(div, element);
+                  });
+              }
+          });
 
-                    const style = window.getComputedStyle(element);
-                    div.style.cssText += `
-                        font-family: ${style.fontFamily};
-                        font-size: ${style.fontSize};
-                        text-align: ${style.textAlign};
-                        color: ${style.color};
-                        width: ${style.width};
-                        min-height: ${style.height};
-                        display: flex;
-                        align-items: center;
-                        padding: ${style.padding};
-                        box-sizing: border-box;
-                    `;
-                    if (style.textAlign === 'center') {
-                        div.style.justifyContent = 'center';
-                    }
-                    // Add extra bottom padding to nudge text up
-                    div.style.paddingBottom = `calc(${style.paddingBottom} + 4px)`;
-                    element.parentNode?.replaceChild(div, element);
-                });
-            }
-        });
+          const imgData = canvas.toDataURL('image/png');
+          const imgProps = pdf.getImageProperties(imgData);
+          const pdfWidth = A4_WIDTH;
+          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+          
+          if (i > 0) pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, Math.min(pdfHeight, A4_HEIGHT));
+      }
 
-        const imgData = canvas.toDataURL('image/png');
-        const imgProps = pdf.getImageProperties(imgData);
-        const pdfWidth = A4_WIDTH;
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        
-        if (i > 0) pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, Math.min(pdfHeight, A4_HEIGHT));
+      const dateStr = `${minutes.date.year.slice(-2)}${minutes.date.month.padStart(2, '0')}${minutes.date.day.padStart(2, '0')}`;
+      const fileName = `${minutes.sponsoringOrganization || '지원기관'}_회의비_${minutes.agenda || '안건'}_(${dateStr})_회의록.pdf`;
+      pdf.save(fileName);
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      alert("PDF 생성 중 오류가 발생했습니다.");
+    } finally {
+      setIsGeneratingPdf(false);
     }
-
-    const dateStr = `${minutes.date.year.slice(-2)}${minutes.date.month.padStart(2, '0')}${minutes.date.day.padStart(2, '0')}`;
-    const fileName = `${minutes.sponsoringOrganization || '지원기관'}_회의비_${minutes.agenda || '안건'}_(${dateStr})_회의록.pdf`;
-    pdf.save(fileName);
-    setIsGeneratingPdf(false);
   };
 
   const commonInputClass = "w-full p-1 border-none focus:ring-1 focus:ring-blue-500 rounded-sm bg-white text-black";
@@ -707,8 +712,8 @@ const App: React.FC = () => {
                               삭제
                           </button>
                       </div>
-                      <div className="border p-2 rounded-md w-full">
-                          <img src={receiptImage} alt="receipt" className="w-full object-contain mx-auto" style={{ maxHeight: '80vh' }}/>
+                      <div className="border p-2 rounded-md w-full flex justify-center">
+                          <img src={receiptImage} alt="receipt" className="max-w-md object-contain mx-auto" style={{ maxHeight: '60vh' }}/>
                       </div>
                   </div>
               ) : (
