@@ -707,7 +707,7 @@ const App: React.FC = () => {
                                 <div className="absolute top-1 right-1 flex print:hidden">
                                     <button 
                                         onClick={() => document.getElementById(`sig-upload-${attendee.id}`)?.click()} 
-                                        className="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-l-md"
+                                        className="text-xs px-2 py-1 bg-gray-200 hover:bg-blue-400 rounded-l-md"
                                         title="다시 선택하기"
                                     >
                                         다시 선택
