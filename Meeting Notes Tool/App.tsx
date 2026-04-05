@@ -342,6 +342,9 @@ const App: React.FC = () => {
   const handleDownloadPdf = async () => {
     setIsGeneratingPdf(true);
     try {
+      // Wait a bit for fonts to load properly
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageElements = document.querySelectorAll('.page-container');
       const A4_WIDTH = 210;
@@ -350,14 +353,15 @@ const App: React.FC = () => {
       for (let i = 0; i < pageElements.length; i++) {
           const page = pageElements[i] as HTMLElement;
           const canvas = await html2canvas(page, {
-              scale: 2,
+              scale: 1.5,
               useCORS: true,
+              logging: true,
               onclone: (documentClone: Document) => {
                   documentClone.querySelectorAll('.print\\:hidden').forEach(el => {
                       (el as HTMLElement).style.display = 'none';
                   });
                   
-                  // Explicitly hide all file inputs to prevent file path text from appearing over images
+                  // Explicitly hide all file inputs
                   documentClone.querySelectorAll('input[type="file"]').forEach(el => {
                       (el as HTMLElement).style.display = 'none';
                   });
@@ -377,22 +381,21 @@ const App: React.FC = () => {
                       }
                   }
 
-                  // Adjust table headers for better vertical alignment
+                  // Adjust table headers
                   documentClone.querySelectorAll('th').forEach(th => {
-                      (th as HTMLElement).style.paddingBottom = "0.8rem"; // Nudge text up
+                      (th as HTMLElement).style.paddingBottom = "0.8rem";
                   });
 
                   // Reduce receipt image size in PDF
                   const receiptImg = documentClone.querySelector('#page-3 img[alt="receipt"]') as HTMLImageElement;
                   if (receiptImg) {
-                      receiptImg.style.width = '300px'; // Set a fixed width for the receipt in PDF
+                      receiptImg.style.width = '300px';
                       receiptImg.style.height = 'auto';
                       receiptImg.style.maxWidth = '100%';
                   }
 
                   documentClone.querySelectorAll('input, textarea').forEach(el => {
                       const element = el as HTMLInputElement | HTMLTextAreaElement;
-                      // Skip if it's a file input (already handled above but double check) or radio/checkbox if we had them
                       if (element.type === 'file') return;
                       
                       const div = documentClone.createElement('div');
@@ -416,9 +419,11 @@ const App: React.FC = () => {
                       if (style.textAlign === 'center') {
                           div.style.justifyContent = 'center';
                       }
-                      // Add extra bottom padding to nudge text up
                       div.style.paddingBottom = `calc(${style.paddingBottom} + 4px)`;
-                      element.parentNode?.replaceChild(div, element);
+                      
+                      if (element.parentNode) {
+                        element.parentNode.replaceChild(div, element);
+                      }
                   });
               }
           });
@@ -437,7 +442,7 @@ const App: React.FC = () => {
       pdf.save(fileName);
     } catch (error) {
       console.error("PDF generation failed:", error);
-      alert("PDF 생성 중 오류가 발생했습니다.");
+      alert("PDF 생성 중 오류가 발생했습니다. 브라우저 콘솔을 확인해 주세요.");
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -725,9 +730,8 @@ const App: React.FC = () => {
         </div>
       </main>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nanum+Square:wght@400;700;800&display=swap');
         body {
-          font-family: 'Nanum Square', sans-serif;
+          font-family: 'NanumSquare', sans-serif;
         }
         @media screen {
           .page-container {
