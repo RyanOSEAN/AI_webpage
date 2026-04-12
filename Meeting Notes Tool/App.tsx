@@ -59,7 +59,7 @@ const extractAmountFromReceipt = async (base64Image: string, mimeType: string): 
 
 
 const projectData = [
-    { supportProject: "플이사업", sponsoringOrganization: "(사)동아시아바다공동체 오션", researcherInCharge: "홍선욱" },
+    { supportProject: "풀이사업", sponsoringOrganization: "(사)동아시아바다공동체 오션", researcherInCharge: "홍선욱" },
     { supportProject: "바다기사단", sponsoringOrganization: "(사)동아시아바다공동체 오션", researcherInCharge: "홍선욱" },
     { supportProject: "GS리테일 해양생태계 보호 프로젝트", sponsoringOrganization: "GS리테일", researcherInCharge: "홍선욱" },
     { supportProject: "2026 GS리테일 바다숨 프로젝트", sponsoringOrganization: "GS리테일", researcherInCharge: "홍선욱" },
